@@ -40,6 +40,9 @@
 #ifdef HAVE_CHD
 #include "CDAccess_CHD.h"
 #endif
+#ifdef HAVE_ORE
+#include "CDAccess_ORE.h"
+#endif
 
 /* Sniff the file's leading bytes for a CHD container. A CHD always
  * begins with the 8-byte tag "MComprHD"; checking it lets multi-disc
@@ -82,6 +85,12 @@ CDAccess *cdaccess_open_image(bool *success, const char *path,
       cda = CDAccess_CHD_New(success, path, image_memcache);
    else if (file_is_chd(path))
       cda = CDAccess_CHD_New(success, path, image_memcache);
+#endif
+#ifdef HAVE_ORE
+   else if (path_len >= 3 && !strcasecmp(path + path_len - 3, "ore"))
+      cda = CDAccess_ORE_New(success, path, image_memcache);
+   else if (cdaccess_file_is_ore(path))
+      cda = CDAccess_ORE_New(success, path, image_memcache);
 #endif
    else
       cda = CDAccess_Image_New(success, path, image_memcache);

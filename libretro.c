@@ -6225,6 +6225,9 @@ static bool MDFNI_LoadGame(const char *name)
       !strcasecmp(name + name_len - 3, "m3u") ||
       !strcasecmp(name + name_len - 3, "chd") ||
       !strcasecmp(name + name_len - 3, "pbp") ||
+#ifdef HAVE_ORE
+      !strcasecmp(name + name_len - 3, "ore") ||
+#endif
       /* Raw track images with no cue/toc sheet: the CD backend
        * synthesizes a single MODE2/2352 data track for these, so
        * route them to the disc loader rather than the PS-X EXE

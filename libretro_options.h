@@ -17,7 +17,11 @@
 #define MEDNAFEN_CORE_NAME "Beetle PSX"
 #define MEDNAFEN_CORE_VERSION MEDNAFEN_CORE_SETVERSION
 #endif
+#ifdef HAVE_ORE
+#define MEDNAFEN_CORE_EXTENSIONS "exe|cue|toc|ccd|m3u|pbp|chd|ore|bin|img|iso"
+#else
 #define MEDNAFEN_CORE_EXTENSIONS "exe|cue|toc|ccd|m3u|pbp|chd|bin|img|iso"
+#endif
 #define MEDNAFEN_CORE_GEOMETRY_BASE_W 320
 #define MEDNAFEN_CORE_GEOMETRY_BASE_H 240
 #define MEDNAFEN_CORE_GEOMETRY_MAX_W 700

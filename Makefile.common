@@ -129,6 +129,14 @@ ifeq ($(HAVE_CHD), 1)
             -DHAVE_RCHD_FLAC -DHAVE_RCHD_ZSTD -DHAVE_RFLAC -DHAVE_RZSTD
 endif
 
+# ORE images, oxyromon's disc format, are read through libsmelt, a Rust
+# static library: HAVE_ORE=1 SMELT_DIR=<oxyromon>/crates/smelt-rs, built
+# there first with `cargo build --release`.
+ifeq ($(HAVE_ORE), 1)
+   SMELT_LIB ?= $(SMELT_DIR)/target/release/libsmelt.a
+   FLAGS += -DHAVE_ORE -I$(SMELT_DIR)/include
+endif
+
 ifeq ($(HAVE_LIGHTREC), 1)
    FLAGS += -DHAVE_LIGHTREC
 
@@ -338,6 +346,13 @@ ifeq ($(HAVE_CHD), 1)
 
    SOURCES_C += $(CDROM_DIR)/CDAccess_CHD.c
 endif ## ifeq ($(HAVE_CHD), 1)
+
+ifeq ($(HAVE_ORE), 1)
+   SOURCES_C += $(CDROM_DIR)/CDAccess_ORE.c
+   # shortcut: the system libraries a Rust staticlib needs on Linux
+   # (rustc --print native-static-libs); other platforms need theirs
+   LIBS += $(SMELT_LIB) -lpthread -ldl -lm -lrt -lutil
+endif
 
 ifeq ($(HAVE_LIGHTREC), 1)
    SOURCES_C +=   $(DEPS_DIR)/lightning/lib/jit_disasm.c \
