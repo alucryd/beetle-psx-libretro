@@ -8,8 +8,9 @@
 # CUE it came from with tools/chd/chd_read_test, which compares any two
 # images cdaccess_open_image opens: the TOC, and every raw sector of the
 # program area with its subchannel, so the SBI's Q, the held pregap and the
-# PREGAP the files do not hold are all compared. Built against libsmelt
-# under AddressSanitizer + UBSan with leak detection.
+# PREGAPs the files do not hold are all compared; and an ORE of a ROM, not
+# a CD, must be refused at open. Built against libsmelt under
+# AddressSanitizer + UBSan with leak detection.
 #
 # Needs cargo, python3 and an oxyromon checkout, whose smelt-rs SMELT_DIR
 # names. Fails rather than skips when any is missing, as the CHD test does.
@@ -73,12 +74,21 @@ python3 tools/ore/make_fixture.py "$WORK/Game"
 # and is recognised by its magic, whatever its extension
 cp "$WORK/Game.ore" "$WORK/Game.cd1"
 
+# An ORE of what is not a CD, a NES ROM, which the backend must refuse
+head -c 40960 "$WORK/Game (Track 1).bin" > "$WORK/Rom.nes"
+"$OXYROMON/target/release/orers" --platform nes -o "$WORK" "$WORK/Rom.nes" \
+   >/dev/null
+
 export ASAN_OPTIONS=detect_leaks=1:abort_on_error=1
 fail=0
 for img in Game.ore Game.cd1; do
    "$WORK/ore_read_test" "$WORK/Game.cue" "$WORK/$img" | tail -1 \
       | grep -q PASS || { echo "FAIL: $img"; fail=1; }
 done
+# Refused at open, its ingot closed under the leak check
+"$WORK/ore_read_test" "$WORK/Game.cue" "$WORK/Rom.ore" \
+   | grep -q "open failed (reference 1, chd 0)" \
+   || { echo "FAIL: Rom.ore was not refused"; fail=1; }
 
 if [ $fail = 0 ]; then
    echo "ore_read_test: all images PASS"

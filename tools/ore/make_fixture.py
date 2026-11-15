@@ -2,7 +2,10 @@
 """Write a synthetic three-track CD image (CUE, a BIN a track, SBI) for the
 ORE test, with what a Redump PlayStation dump has besides its tracks:
 
-  Track 1  MODE2/2352  data sectors, tools/chd/make_fixture.py's
+  Track 1  MODE2/2352  data sectors, tools/chd/make_fixture.py's, after a
+                       PREGAP its file does not hold: the backends differ
+                       on what a data track's reads as, CDAccess_Image's
+                       zeros the ORE's must match
   Track 2  AUDIO       its two seconds of pregap held in its file (INDEX 00),
                        FLAGS DCP, as many Redump audio tracks have
   Track 3  AUDIO       a PREGAP its file does not hold
@@ -43,6 +46,7 @@ def main():
     with open(base + '.cue', 'w') as f:
         f.write('FILE "%s (Track 1).bin" BINARY\n' % name)
         f.write('  TRACK 01 MODE2/2352\n')
+        f.write('    PREGAP 00:02:00\n')
         f.write('    INDEX 01 00:00:00\n')
         f.write('FILE "%s (Track 2).bin" BINARY\n' % name)
         f.write('  TRACK 02 AUDIO\n')
